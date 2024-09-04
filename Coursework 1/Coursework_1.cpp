@@ -8,8 +8,9 @@
 int numberGeneration{1};
 int livingCells{};
 int numberStable{};
-int gameOver{}; //0 - играт продолжается, 1 - не осталось ни одной "живой" клетки, 2 - ни одна из клеток не поменяла своего положения
+int gameOver{}; //0 - игра продолжается, 1 - не осталось ни одной "живой" клетки, 2 - ни одна из клеток не поменяла своего положения
 
+int count(char** array, int numberRows, int numberColumns, int i, int j);
 void live(char** array, int numberRows, int numberColumns);
 void printGeneration(char** array, int numberRows, int numberColumns);
 
@@ -47,12 +48,20 @@ int main()
     }
 
     printGeneration(currentArray, numberRows, numberColumns);
+    for (int i = 0; i < numberRows; ++i)
+    {
+        for (int j = 0; j < numberColumns; ++j)
+        {
+            if (currentArray[i][j] == '-') { ++numberStable; }
+        }
+    }
+    if (numberStable == numberRows * numberColumns) { gameOver = 1; printGeneration(currentArray, numberRows, numberColumns); }
 
-    do
+    while (gameOver == 0)
     {
         live(currentArray, numberRows, numberColumns);
         printGeneration(currentArray, numberRows, numberColumns);
-    } while (gameOver == 0);
+    }
 
     starterField.close();
 
@@ -63,18 +72,28 @@ int main()
     return EXIT_SUCCESS;
 }
 
-
+//функция безопастного подсчёта "живых" клеток
+int count(char** array, int i, int j, int numberRows, int numberColumns)
+{
+    if ((i < 0) || (j < 0) || (i >= numberRows) || (j >= numberColumns))
+    { return 0; }
+    else {
+        if (array[i][j] == '*') { return 1; }
+        else { return 0; }
+    }
+}
 
 void live(char** array, int numberRows, int numberColumns)
 {
-    Sleep(2700);
+    Sleep(1000);
 
     ++numberGeneration;
     livingCells = 0;
     numberStable = 0;
 
-    int cellsNearby{};
+    int aliveCellsNearby{};
     char** newArray = new char*[numberRows];
+    int neighbors{};
 
     for (int i = 0; i < numberRows; ++i)
     { newArray[i] = new char[numberColumns]; }
@@ -88,50 +107,22 @@ void live(char** array, int numberRows, int numberColumns)
     {
         for (int j = 0; j < numberColumns; ++j)
         {
-            if (array[i][j] == '-')
-            {
-                if (j - 1 >= 0)
-                { if (array[i][j - 1] == '*') { cellsNearby++; } }
-                if (j + 1 < numberColumns)
-                { if (array[i][j + 1] == '*') { cellsNearby++; } }
-                if ((i + 1 < numberRows) && (j - 1 >= 0))
-                { if (array[i + 1][j - 1] == '*') { cellsNearby++; } }
-                if (i + 1 < numberRows)
-                { if (array[i + 1][j] == '*') { cellsNearby++; } }
-                if ((i + 1 < numberRows) && (j + 1 < numberColumns))
-                { if (array[i + 1][j + 1] == '*') { cellsNearby++; } }
-                if ((i - 1 >= 0) && (j - 1 >= 0))
-                { if (array[i - 1][j - 1] == '*') { cellsNearby++; } }
-                if (i - 1 >= 0)
-                { if (array[i - 1][j] == '*') { cellsNearby++; } }
-                if ((i - 1 >= 0) && (j + 1 < numberColumns))
-                { if (array[i - 1][j + 1] == '*') { cellsNearby++; } }
+                aliveCellsNearby = 0;
+                //безопасный подсчет "живых" клеток в верхнем ряду
+                aliveCellsNearby += count(array, i - 1, j - 1, numberRows, numberColumns);
+                aliveCellsNearby += count(array, i - 1, j,     numberRows, numberColumns);
+                aliveCellsNearby += count(array, i - 1, j + 1, numberRows, numberColumns);
+                //безопасный подсчет "живых" клеток в среднем ряду (без центра)
+                aliveCellsNearby += count(array, i    , j - 1, numberRows, numberColumns);
+                aliveCellsNearby += count(array, i    , j + 1, numberRows, numberColumns);
+                //безопасный подсчет "живых" клеток в нижнем ряду
+                aliveCellsNearby += count(array, i + 1, j - 1, numberRows, numberColumns);
+                aliveCellsNearby += count(array, i + 1, j,     numberRows, numberColumns);
+                aliveCellsNearby += count(array, i + 1, j + 1, numberRows, numberColumns);
 
-                if (cellsNearby == 3) { newArray[i][j] = '*'; }
-                cellsNearby = 0;
-            }
-            if (array[i][j] == '*')
-            {
-                if (j - 1 >= 0)
-                { if (array[i][j - 1] == '*') { cellsNearby++; } }
-                if (j + 1 < numberColumns)
-                { if (array[i][j + 1] == '*') { cellsNearby++; } }
-                if ((i + 1 < numberRows) && (j - 1 >= 0))
-                { if (array[i + 1][j - 1] == '*') { cellsNearby++; } }
-                if (i + 1 < numberRows)
-                { if (array[i + 1][j] == '*') { cellsNearby++; } }
-                if ((i + 1 < numberRows) && (j + 1 < numberColumns))
-                { if (array[i + 1][j + 1] == '*') { cellsNearby++; } }
-                if ((i - 1 >= 0) && (j - 1 >= 0))
-                { if (array[i - 1][j - 1] == '*') { cellsNearby++; } }
-                if (i - 1 >= 0)
-                { if (array[i - 1][j] == '*') { cellsNearby++; } }
-                if ((i - 1 >= 0) && (j + 1 < numberColumns))
-                { if (array[i - 1][j + 1] == '*') { cellsNearby++; } }
+                if (aliveCellsNearby == 3) { newArray[i][j] = '*'; }
 
-                if ((cellsNearby > 3) || (cellsNearby < 2)) { newArray[i][j] = '-'; }
-                cellsNearby = 0;
-            }
+                if ((aliveCellsNearby > 3) || (aliveCellsNearby < 2)) { newArray[i][j] = '-'; }
         }
     }
 
