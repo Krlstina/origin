@@ -51,12 +51,12 @@ public:
     float resultRace(float distance) override;
 };
 
-class CamelSpeedster : public Camel 
+class CamelSpeedster : public Camel
 {
 private:
     double restSecond{};
 public:
-    CamelSpeedster(double restSecond);
+    CamelSpeedster(double restSecond = 6.5);
 
     float resultRace(float distance) override;
 };

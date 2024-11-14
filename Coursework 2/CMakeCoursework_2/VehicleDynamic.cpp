@@ -20,8 +20,8 @@ Camel::Camel(std::string name, int speed, int time, double rest, double restFirs
     this->restFirst = restFirst;
 }
 
-CamelSpeedster::CamelSpeedster(double restSecond = 6.5)
-    : Camel("Верблюд-быстроход", 40, 10, rest, restFirst)
+CamelSpeedster::CamelSpeedster(double restSecond)
+    : Camel("Верблюд-быстроход", 40, 10)
 {
     this->restSecond = restSecond;
 }
@@ -57,9 +57,7 @@ float Camel::resultRace(float distance)
 {
     int numberOfStops{};
     float timeDriving{ distance / speed };
-    std::cout << "timeDriving = " << timeDriving;
     numberOfStops = floor(timeDriving / timeDrivingBeforeRest);
-    std::cout << "numberOfStops = " << numberOfStops;
     if (numberOfStops < 1)
     {
         return timeDriving;
