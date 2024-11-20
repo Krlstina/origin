@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string>
 #include "Windows.h"
-#include "VehicleDynamic.h"
+#include "VehicleLib/VehicleDynamic.h"
 
 int main()
 {
@@ -32,12 +32,13 @@ int main()
     std::cin >> choiceVehicle;
     std::cout << std::endl;
 
-    std::string registration{ "Зарегистрированные транспортные средства:" };
+    std::string registration{ "Зарегистрированные транспортные средства: " };
     std::string* get_reg{&registration};
 
     std::string numberParticipant{ "0" };
     std::string* get_partic{&numberParticipant};
 
+    bool wrongType{false};
     Result arr[7];
     TypeVehicle choiceVehicleType{};
     choiceVehicleType = static_cast<TypeVehicle>(choiceVehicle);
@@ -54,17 +55,23 @@ int main()
                 {
                 case TypeVehicle::tv_AllTerrainVehicleBoots:
                     createChoiceTypeVehicle(get_partic, arr, 0, distance, get_reg);
+                    wrongType = false;
                     break;
                 case TypeVehicle::tv_Camel:
                     createChoiceTypeVehicle(get_partic, arr, 2, distance, get_reg);
+                    wrongType = false;
                     break;
                 case TypeVehicle::tv_Centaur:
                     createChoiceTypeVehicle(get_partic, arr, 3, distance, get_reg);
+                    wrongType = false;
                     break;
                 case TypeVehicle::tv_CamelSpeedster:
                     createChoiceTypeVehicle(get_partic, arr, 5, distance, get_reg);
+                    wrongType = false;
                     break;
                 default:
+                    if (wrongType == false && std::stoi(numberParticipant) != 0) { registration.erase(registration.length() - 2, 2); }
+                    else { wrongType = true; }
                     std::cout << "\nПопытка зарегистрировать неправильный тип транспортного средства";
                     break;
                 }
@@ -76,14 +83,19 @@ int main()
                 {
                 case TypeVehicle::tv_Broomstick:
                     createChoiceTypeVehicle(get_partic, arr, 1, distance, get_reg);
+                    wrongType = false;
                     break;
                 case TypeVehicle::tv_Eagle:
                     createChoiceTypeVehicle(get_partic, arr, 4, distance, get_reg);
+                    wrongType = false;
                     break;
                 case TypeVehicle::tv_MagicCarpet:
                     createChoiceTypeVehicle(get_partic, arr, 6, distance, get_reg);
+                    wrongType = false;
                     break;
                 default:
+                    if (wrongType == false && std::stoi(numberParticipant) != 0) { registration.erase(registration.length() - 2, 2); }
+                    else { wrongType = true; }
                     std::cout << "\nПопытка зарегистрировать неправильный тип транспортного средства";
                     break;
                 }
@@ -120,12 +132,14 @@ int main()
             printVehicle(distance, typeDriving);
             std::cin >> choiceVehicle;
 
+            if (wrongType == false) { registration += ", "; }
+
             if (choiceVehicle == 0 && std::stoi(numberParticipant) < 12) //проверка на регистрацию минимум 2 ТС
             {
                 std::cout << "\nОшибка! Для начала гонки должно быть зарегистрировано хотя бы 2 транспортных средства!";
                 printVehicle(distance, typeDriving);
                 std::cin >> choiceVehicle;
-            }
+            }   
         }
         std::cout << "\n1. Зарегистрировать транспортное средство" << std::endl;
         std::cout << "2. Начать гонку" << std::endl;
@@ -186,17 +200,19 @@ int main()
             std::cout << "Выберите действие: ";
             std::cin >> action;
 
-            registration = "Зарегистрированные транспортные средства:";
+            registration = "Зарегистрированные транспортные средства: ";
             numberParticipant = "0";
             std::fill(std::begin(arr), std::end(arr), Result());
             printVehicle(distance, typeDriving);
             std::cin >> choiceVehicle;
             std::cout << std::endl;         
         } else {
+            registration.erase(registration.length() - 2, 2);
             std::cout << registration;
             printVehicle(distance, typeDriving);
             std::cin >> choiceVehicle;
             std::cout << std::endl;
+            registration += ", ";
         }
     } while (action == 1);
 
